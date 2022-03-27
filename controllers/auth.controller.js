@@ -10,6 +10,12 @@ const crearUsuario = (req, res = express.response) => {
 // aunque como queda un poco feo puedo desectructurar express y quedarme solo con las
 // response, (y la request tambien )
 const { response } = require('express');
+
+/** Las contraseñas no deben de ir en texto plano, porque viajan y pueden ser interceptadas
+ * La primera medida de seguridad es encriptar la contraseña. tenemos una libreria que nos
+ * ayuda con eso
+ */
+const bcrypt = require('bcryptjs');
 const Usuario = require('../models/Usuario.model');
 
 const crearUsuario = async (req, res = response) => {
@@ -30,6 +36,13 @@ const crearUsuario = async (req, res = response) => {
     }
     // creamos una instancia del  Modelo (clase) Usuario
     usuario = new Usuario(req.body);
+    // Encriptar la contraseña.
+    // 1 - Generar un pedazo de informacion aleatoria que se le suele llamar salt.  Cuando mas vueltas mas seguro es pero consume mas recursos y mas dificil de testar.
+    //     Se suele dar un numero de saltos equilibrado 10 por defecto.
+    const salt = bcrypt.genSaltSync();
+    // Ahora vamos a sustituir el password que nos ha llegado del body por la contraseña encriptada
+    usuario.password = bcrypt.hashSync(password, salt);
+
     // Ahora lo grabo en la base de datos. el metodo  es save que regresa una promesa
     await usuario.save();
 
@@ -48,8 +61,45 @@ const crearUsuario = async (req, res = response) => {
   }
 };
 
-const loginUsuario = (req, res = response) => {
+const loginUsuario = async (req, res = response) => {
   const { email, password } = req.body;
+
+  try {
+    // Confirmar que exista un usuario con ese email.
+    const usuario = await Usuario.findOne({ email });
+    if (!usuario) {
+      return res.status(400).json({
+        ok: false,
+        msg: 'El usuario no existe con ese email',
+      });
+    }
+
+    // Confirmar los passwords
+    // bcrypt nos da un metodo que nos permite comparar la contraseña que introduce el usuario (desencriptada) con la almacenada en la DB (encripptada)
+    // Devuelve true si es valido y false si no es valido.
+    const validPassword = bcrypt.compareSync(password, usuario.password);
+    // Si no es valido devolvemos un error como respuesta.
+    if (!validPassword) {
+      return res.status(400).json({
+        ok: false,
+        msg: 'Password Incorrecto',
+      });
+    }
+    // Si ha pasado la validacion de la contraseña . podemos generar nuestro JSON Web Token - JWT
+
+    // Mandamos la respuesta correcta.
+    return res.json({
+      ok: true,
+      uid: usuario.id,
+      username: usuario.name,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      ok: false,
+      msg: 'Por favor contacte con el administrador',
+    });
+  }
 
   return res.status(201).json({
     ok: true,
