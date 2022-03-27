@@ -3,6 +3,9 @@
 // en el package.json la siguiente linea: "type": "module",
 
 const express = require('express');
+require('dotenv').config();
+
+// console.log(process.env);
 
 // Crear servidor express
 
@@ -18,6 +21,6 @@ app.use(express.static('public'));
 }); */
 
 // Puesta en marcha . escuchar peticiones
-app.listen(4000, () => {
-  console.log(`Servidor en marcha corriendo en puerto ${4000}`);
+app.listen(process.env.PORT, () => {
+  console.log(`Servidor en marcha corriendo en puerto ${process.env.PORT}`);
 });
