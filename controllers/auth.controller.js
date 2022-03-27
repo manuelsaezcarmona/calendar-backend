@@ -11,11 +11,33 @@ const crearUsuario = (req, res = express.response) => {
 const { response } = require('express');
 
 const crearUsuario = (req, res = response) => {
-  res.json({ ok: true, msg: 'created' });
+  // Voy a desectructurar las propiedades que me interesan del body
+  const { username, email, password } = req.body;
+
+  if (username.length < 5) {
+    return res.json({
+      ok: false,
+      msg: 'El nombre tiene que tener al menos 5 letras',
+    });
+  }
+
+  res.json({
+    ok: true,
+    msg: 'created',
+    username,
+    email,
+    password,
+  });
 };
 
 const loginUsuario = (req, res = response) => {
-  res.json({ ok: true, msg: 'login' });
+  const { email, password } = req.body;
+  res.json({
+    ok: true,
+    msg: 'login',
+    email,
+    password,
+  });
 };
 
 const revalidarToken = (req, res = response) => {

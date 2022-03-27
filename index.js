@@ -12,18 +12,22 @@ require('dotenv').config();
 
 const app = express();
 
-// Directorio Publico
+/* --- MIDDLEWARES ---- */
 
+// Directorio Publico
 app.use(express.static('public'));
 
-// Rutas
+// LEctura y parseo del body
+app.use(express.json());
+
+/* --- RUTAS ---- */
 // este comando lo que quiere decir es que todo lo que se va a importar en este archivo lo va a habilitar en esta ruta
 app.use('/api/auth', require('./routes/auth.route'));
 
 // TODO: Auth // crear usuarios, login,  renew con token.
 // TODO: CRUD -> Eventos
 
-// Puesta en marcha . escuchar peticiones
+/* --- PUESTA EN MARCHA ---- */
 app.listen(process.env.PORT, () => {
   console.log(`Servidor en marcha corriendo en puerto ${process.env.PORT}`);
 });
