@@ -8,10 +8,14 @@ const express = require('express');
 
 const app = express();
 
+// Directorio Publico
+
+app.use(express.static('public'));
+
 // Rutas
-app.get('/', (req, res) => {
+/* app.get('/', (req, res) => {
   res.json({ ok: true });
-});
+}); */
 
 // Puesta en marcha . escuchar peticiones
 app.listen(4000, () => {
