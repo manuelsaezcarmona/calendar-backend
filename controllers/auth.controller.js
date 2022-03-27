@@ -10,18 +10,31 @@ const crearUsuario = (req, res = express.response) => {
 // response, (y la request tambien )
 const { response } = require('express');
 const { validationResult } = require('express-validator');
+const Usuario = require('../models/Usuario.model');
 
-const crearUsuario = (req, res = response) => {
+const crearUsuario = async (req, res = response) => {
   // Voy a desectructurar las propiedades que me interesan del body
   const { username, email, password } = req.body;
+  try {
+    // creamos una instancia del  Modelo (clase) Usuario
+    const usuario = new Usuario(req.body);
+    // Ahora lo grabo en la base de datos. el metodo  es save que regresa una promesa
+    await usuario.save();
 
-  return res.status(201).json({
-    ok: true,
-    msg: 'created',
-    username,
-    email,
-    password,
-  });
+    return res.status(201).json({
+      ok: true,
+      msg: 'created',
+      username,
+      email,
+      password,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      ok: false,
+      msg: 'Por favor contacte con el administrador',
+    });
+  }
 };
 
 const loginUsuario = (req, res = response) => {

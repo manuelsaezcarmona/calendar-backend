@@ -5,6 +5,8 @@
 
 const express = require('express');
 require('dotenv').config();
+const morgan = require('morgan');
+const { dbConnection } = require('./database/db.config');
 
 // console.log(process.env);
 
@@ -12,8 +14,12 @@ require('dotenv').config();
 
 const app = express();
 
-/* --- MIDDLEWARES ---- */
+// Base de datos
+dbConnection();
 
+/* --- MIDDLEWARES ---- */
+// Informacion de peticiones Directamente en Server
+app.use(morgan('dev'));
 // Directorio Publico
 app.use(express.static('public'));
 
