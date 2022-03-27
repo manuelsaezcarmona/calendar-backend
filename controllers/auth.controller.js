@@ -9,19 +9,29 @@ const crearUsuario = (req, res = express.response) => {
 // aunque como queda un poco feo puedo desectructurar express y quedarme solo con las
 // response, (y la request tambien )
 const { response } = require('express');
+const { validationResult } = require('express-validator');
 
 const crearUsuario = (req, res = response) => {
   // Voy a desectructurar las propiedades que me interesan del body
   const { username, email, password } = req.body;
 
-  if (username.length < 5) {
-    return res.json({
+  /** El check de express-validator va a colocar en la request los errores
+   * de validacion le hemos definido como un objeto Result. donde los errores
+   * se recogen en un array de errors. Si no hay errores errores = []
+   */
+
+  // Manejo de errores.
+  const errors = validationResult(req);
+  // console.log(errors);
+
+  if (!errors.isEmpty()) {
+    return res.status(400).json({
       ok: false,
-      msg: 'El nombre tiene que tener al menos 5 letras',
+      errors: errors.mapped(),
     });
   }
 
-  res.json({
+  return res.status(201).json({
     ok: true,
     msg: 'created',
     username,
@@ -32,7 +42,17 @@ const crearUsuario = (req, res = response) => {
 
 const loginUsuario = (req, res = response) => {
   const { email, password } = req.body;
-  res.json({
+
+  // Manejo de errores.
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({
+      ok: false,
+      errors: errors.mapped(),
+    });
+  }
+
+  return res.status(201).json({
     ok: true,
     msg: 'login',
     email,
