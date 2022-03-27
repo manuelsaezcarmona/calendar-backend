@@ -14,6 +14,9 @@ const {
   revalidarToken,
   loginUsuario,
 } = require('../controllers/auth.controller');
+
+const { validarcampos } = require('../middlewares/validar-campos');
+
 /* vamos a usar el middleware que me proporciona express validator
 para aplicar un solo midlleware se le pasaria como segundo parametro
 al metodo (post, get...) pero si son necesarios varios se le pasa en
@@ -27,6 +30,7 @@ router.post(
     check('password', 'El password debe ser de 6 caracteres').isLength({
       min: 6,
     }),
+    validarcampos,
   ],
 
   crearUsuario
@@ -41,6 +45,7 @@ router.post(
     check('password', 'El password debe ser de 6 caracteres').isLength({
       min: 6,
     }),
+    validarcampos,
   ],
 
   loginUsuario
