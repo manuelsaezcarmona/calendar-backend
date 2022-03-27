@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /* eslint-disable no-unused-vars */
 // Aunque este import no es necesario para que VSCode recoga la ayuda lo hago.
 // y pongo como parametro por defecto el express response.
@@ -9,24 +10,34 @@ const crearUsuario = (req, res = express.response) => {
 // aunque como queda un poco feo puedo desectructurar express y quedarme solo con las
 // response, (y la request tambien )
 const { response } = require('express');
-const { validationResult } = require('express-validator');
 const Usuario = require('../models/Usuario.model');
 
 const crearUsuario = async (req, res = response) => {
   // Voy a desectructurar las propiedades que me interesan del body
-  const { username, email, password } = req.body;
+  const { email, password } = req.body;
   try {
+    /* Validaciones en la base de datos: Si definimos en el esquema propiedades unicas el motor
+    *  de Mongoose nos dara error y no permitira grabar en nuestra base de datos.
+       Debemos de ser nosotros los que tengamos controlados esos errores  el metodo find one
+       nos devuelve un registro con las condiciones pasadas como objeto JS si no lo encuentra nos devuelve un null */
+    let usuario = await Usuario.findOne({ email });
+
+    if (usuario) {
+      return res.status(400).json({
+        ok: false,
+        msg: 'Ya existe un usuario con ese correo',
+      });
+    }
     // creamos una instancia del  Modelo (clase) Usuario
-    const usuario = new Usuario(req.body);
+    usuario = new Usuario(req.body);
     // Ahora lo grabo en la base de datos. el metodo  es save que regresa una promesa
     await usuario.save();
 
     return res.status(201).json({
       ok: true,
-      msg: 'created',
-      username,
-      email,
-      password,
+      msg: 'usuario creado',
+      uid: usuario.id,
+      username: usuario.username,
     });
   } catch (error) {
     console.log(error);
