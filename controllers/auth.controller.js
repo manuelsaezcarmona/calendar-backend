@@ -17,6 +17,8 @@ const { response } = require('express');
  * ayuda con eso
  */
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+
 const Usuario = require('../models/Usuario.model');
 const { generarJWT } = require('../helpers/jwt');
 
@@ -59,7 +61,7 @@ const crearUsuario = async (req, res = response) => {
       token,
     });
   } catch (error) {
-    console.log(error);
+    // console.log(error);
     res.status(500).json({
       ok: false,
       msg: 'Por favor contacte con el administrador',
@@ -74,7 +76,7 @@ const loginUsuario = async (req, res = response) => {
     // Confirmar que exista un usuario con ese email.
     const usuario = await Usuario.findOne({ email });
 
-    console.log(usuario);
+    // console.log(usuario);
     if (!usuario) {
       return res.status(400).json({
         ok: false,
@@ -112,8 +114,28 @@ const loginUsuario = async (req, res = response) => {
   }
 };
 
-const revalidarToken = (req, res = response) => {
-  res.json({ ok: true, msg: 'renew' });
+/** En todas las rutas en las que esten protegidas y el usuario tiene que estar autenticado
+ *  necesitare saber si el token es valido (no ha sido modificado o expirado)
+ * El objetivo es que cojan el token actual y va a regresar un nuevo jwt. Con el objetivo
+ * de prolongar la sesion y como forma de autenticacion.
+ */
+const revalidarToken = async (req, res = response) => {
+  // Ahora esta request ha cogido los valores del token que se los ha pasado el middleware
+  // validar token.
+  const { uid, name } = req;
+
+  // Generar un nuevo JWT y retornarlo en esta peticion.
+  // No hace falta validarlo porque ya lo hicimos en nuestro middleware que es desde
+  // donde sacamos el uid y el name.
+  const token = await generarJWT(uid, name);
+
+  res.json({
+    ok: true,
+    msg: 'renovado',
+    uid,
+    name,
+    token,
+  });
 };
 
 // En module exports si es defecto se coloca el nombre de la funcion,
