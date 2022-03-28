@@ -6,6 +6,7 @@
 const express = require('express');
 require('dotenv').config();
 const morgan = require('morgan');
+const cors = require('cors');
 const { dbConnection } = require('./database/db.config');
 
 // console.log(process.env);
@@ -18,6 +19,8 @@ const app = express();
 dbConnection();
 
 /* --- MIDDLEWARES ---- */
+// CORS - Capa de Seguridad para nuestras peticiones (mirar documentacion)
+app.use(cors());
 // Informacion de peticiones Directamente en Server
 app.use(morgan('dev'));
 // Directorio Publico
