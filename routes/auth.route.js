@@ -16,11 +16,12 @@ const {
 } = require('../controllers/auth.controller');
 
 const { validarcampos } = require('../middlewares/validar-campos');
+const { validarJWT } = require('../middlewares/validar-jwt');
 
 /* vamos a usar el middleware que me proporciona express validator
 para aplicar un solo midlleware se le pasaria como segundo parametro
 al metodo (post, get...) pero si son necesarios varios se le pasa en
-un array de middleware */
+un array [] de middleware */
 router.post(
   '/new',
   [
@@ -51,5 +52,5 @@ router.post(
   loginUsuario
 );
 
-router.get('/renew', revalidarToken);
+router.get('/renew', validarJWT, revalidarToken);
 module.exports = router;
