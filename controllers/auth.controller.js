@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable max-len */
 /* eslint-disable no-unused-vars */
 // Aunque este import no es necesario para que VSCode recoga la ayuda lo hago.
@@ -17,6 +18,7 @@ const { response } = require('express');
  */
 const bcrypt = require('bcryptjs');
 const Usuario = require('../models/Usuario.model');
+const { generarJWT } = require('../helpers/jwt');
 
 const crearUsuario = async (req, res = response) => {
   // Voy a desectructurar las propiedades que me interesan del body
@@ -46,11 +48,15 @@ const crearUsuario = async (req, res = response) => {
     // Ahora lo grabo en la base de datos. el metodo  es save que regresa una promesa
     await usuario.save();
 
+    // Generar el Token JWT
+    const token = await generarJWT(usuario.id, usuario.username);
+
     return res.status(201).json({
       ok: true,
       msg: 'usuario creado',
       uid: usuario.id,
       username: usuario.username,
+      token,
     });
   } catch (error) {
     console.log(error);
@@ -67,6 +73,8 @@ const loginUsuario = async (req, res = response) => {
   try {
     // Confirmar que exista un usuario con ese email.
     const usuario = await Usuario.findOne({ email });
+
+    console.log(usuario);
     if (!usuario) {
       return res.status(400).json({
         ok: false,
@@ -86,27 +94,22 @@ const loginUsuario = async (req, res = response) => {
       });
     }
     // Si ha pasado la validacion de la contraseña . podemos generar nuestro JSON Web Token - JWT
+    const token = await generarJWT(usuario.id, usuario.username);
 
     // Mandamos la respuesta correcta.
-    return res.json({
+    return res.status(202).json({
       ok: true,
-      uid: usuario.id,
-      username: usuario.name,
+      id: usuario._id,
+      username: usuario.username,
+      token,
     });
   } catch (error) {
     console.log(error);
-    res.status(500).json({
+    return res.status(500).json({
       ok: false,
       msg: 'Por favor contacte con el administrador',
     });
   }
-
-  return res.status(201).json({
-    ok: true,
-    msg: 'login',
-    email,
-    password,
-  });
 };
 
 const revalidarToken = (req, res = response) => {
