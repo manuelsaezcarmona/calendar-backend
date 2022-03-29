@@ -1,5 +1,5 @@
 # See http://help.github.com/ignore-files/ for more about ignoring files.
-.env
+# .env Para hacer el deploy hay que subir las variables de entorno
 package-lock.json
 # samples from partners
 /backsample
