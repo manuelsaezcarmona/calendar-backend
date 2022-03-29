@@ -32,9 +32,8 @@ app.use(express.json());
 /* --- RUTAS ---- */
 // este comando lo que quiere decir es que todo lo que se va a importar en este archivo lo va a habilitar en esta ruta
 app.use('/api/auth', require('./routes/auth.route'));
-
-// TODO: Auth // crear usuarios, login,  renew con token.
 // TODO: CRUD -> Eventos
+app.use('/api/events', require('./routes/events.route'));
 
 /* --- PUESTA EN MARCHA ---- */
 app.listen(process.env.PORT, () => {
