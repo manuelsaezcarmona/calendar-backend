@@ -29,4 +29,15 @@ const EventoSchema = Schema({
   },
 });
 
+/* Mongoose tiene un serializador por defecto yo puedo sobreescribir ese metodo
+para que lo haga como yo quiero */
+
+EventoSchema.method('toJSON', function () {
+  // Referencia al objeto , saco las propiedades que me interesan por desectructuracion
+  const { __v, _id, ...object } = this.toObject();
+  // ahora reemplazo las propiedades.
+  object.id = _id;
+  return object;
+});
+
 module.exports = model('Evento', EventoSchema);

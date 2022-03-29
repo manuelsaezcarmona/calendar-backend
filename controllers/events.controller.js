@@ -12,7 +12,10 @@ const crearEvento = async (req, res = response) => {
   // Verificar que tengo los datos del evento
   console.log(req.body);
   const evento = new Evento(req.body);
+
   try {
+    // Necesito el id del usuario eso viene en la request
+    evento.user = req.uid;
     const eventoGuardado = await evento.save();
     res.status(200).json({
       ok: true,
