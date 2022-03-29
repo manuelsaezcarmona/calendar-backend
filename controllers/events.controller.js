@@ -37,12 +37,62 @@ const crearEvento = async (req, res = response) => {
   }
 };
 
-const actualizarEvento = (req, res = response) => {
-  res.status(200).json({
-    id: req.id,
-    ok: true,
-    msg: 'evento actualizado',
-  });
+const actualizarEvento = async (req, res = response) => {
+  // viene por parametros
+  const eventId = req.params.id;
+  const { uid } = req;
+
+  try {
+    // Verificar que este evento exista.
+
+    const evento = await Evento.findById(eventId);
+
+    if (!evento) {
+      res.status(404).json({
+        ok: false,
+        msg: 'No existe Evento con ese ID',
+      });
+    }
+    // Verificar si la persona que creo el evento es la misma que lo quiere actualizar
+    // ese evento user esta como ObjectID , lo convertimos a String
+    if (evento.user.toString() !== uid) {
+      return res.status(401).json({
+        ok: false,
+        msg: 'No tiene permiso para editar este evento',
+      });
+    }
+
+    // Pasadas las validaciones comencemos a actualizar el evento .
+    // El evento ya lo tengo con el findById
+    const eventoAactualizar = {
+      ...req.body,
+      user: uid,
+    };
+
+    /* findByIdAndUpdate por defecto devuelve el viejo documento por si aun
+     quisieran hacer algo con él pero puede ser confuso que en la respuesta
+     se muestre el evento "antiguo" (sin actualizar) .
+     findByIdAndUpdate tiene un tercer argumamentos que son las opciones entre ellas
+     que me devuelva el evento totalmente actualizado */
+
+    const eventoactualizado = await Evento.findByIdAndUpdate(
+      eventId,
+      eventoAactualizar,
+      { new: true }
+    );
+
+    res.status(200).json({
+      ok: true,
+      msg: 'evento actualizado',
+      evento: eventoactualizado,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      ok: false,
+      msg: 'Error al actualizar el evento',
+    });
+  }
 };
 
 const eliminarEvento = (req, res = response) => {
