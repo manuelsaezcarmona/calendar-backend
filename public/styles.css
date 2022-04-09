@@ -1,6 +1,9 @@
 html,
 body {
   background-color: #95c2de;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .mainbox {
